@@ -1,0 +1,19 @@
+# Visions in execution order (round-robin).
+# Each entry is a vision id; title/comments are for human reference only.
+# CLI parses `visions` as []string — keep entries flat.
+visions:
+  - LSTD-002 # Magii 核心（注册中心）
+  - LSTD-003 # 调度中心（flowablex 集成）
+  - LSTD-004 # 自我学习与进化机制
+
+# Execution roadmap tree (workshop/vision scheduling order).
+# Map format: parent -> list of children.
+roadmap:
+  - LSTD-002: # Magii 核心（注册中心）
+    - LSTD-003 # 调度中心（flowablex 集成）
+    - LSTD-004 # 自我学习与进化机制
+
+active-visions:
+  - LSTD-003
+last-vision: LSTD-003
+last-vision-updated-at: 2026-07-26T00:00:00+08:00
