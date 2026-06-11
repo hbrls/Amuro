@@ -1,0 +1,4 @@
+# READONLY METADATA
+- appId: Amuro
+- planId: PLAN-101
+- source: "$ backstage-gitea plan GET /Amuro/PLAN-101"
