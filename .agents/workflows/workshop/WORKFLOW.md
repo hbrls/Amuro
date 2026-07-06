@@ -29,7 +29,7 @@ workshop 是初始化入口，尚未有当前 TASK 可用于推导 Vision Id。�
 
 workshop 只初始化全新的讨论目录，固定创建 `TASK-001.md` 和 `TASK-002.md`，不计算续编编号。
 
-- 如果当前 Vision 目录已存在 `Index.md`、`TASK-*`、`C-*`、`WORKSHOP-*` 或 `.done/`，说明这不是全新初始化场景，workshop 必须停止，不得续编、覆盖或合并。
+- 如果当前 Vision 目录已存在 `Index.md`、`TASK-*`、`C-*` 或 `.done/`，说明这不是全新初始化场景，workshop 必须停止，不得续编、覆盖或合并。
 - 后续是否继续讨论、创建新任务或结束，不属于 workshop 职责。
 
 ## 固定产物
@@ -74,7 +74,7 @@ workshop 的全部可用规则统一维护在：
 
 ### 步骤 2：确认全新初始化状态
 
-检查当前 Vision 目录内是否已经存在 `Index.md`、`TASK-*`、`C-*`、`WORKSHOP-*` 或 `.done/`。
+检查当前 Vision 目录内是否已经存在 `Index.md`、`TASK-*`、`C-*` 或 `.done/`。
 
 - 若不存在，继续初始化。
 - 若存在，立即停止；不得计算新编号，不得续编任务，不得覆盖已有讨论产物。
