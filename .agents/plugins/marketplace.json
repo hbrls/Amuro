@@ -1,0 +1,20 @@
+{
+  "name": "amuro-local",
+  "interface": {
+    "displayName": "Amuro Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "preset-codex-plugin",
+      "source": {
+        "source": "local",
+        "path": "./packages/preset-codex-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
