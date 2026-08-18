@@ -1,0 +1,20 @@
+{
+  "name": "preset-codex-plugin",
+  "version": "0.0.1",
+  "description": "A minimal plugin for verifying static MCP Apps UI mounting in Codex.",
+  "author": {
+    "name": "Local developer"
+  },
+  "interface": {
+    "displayName": "Preset Codex Plugin",
+    "shortDescription": "Verify static MCP Apps UI mounting.",
+    "longDescription": "A minimal Codex plugin that exposes one static HTML UI through MCP.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Open the Preset Codex Plugin UI."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}
