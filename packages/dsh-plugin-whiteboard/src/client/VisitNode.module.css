@@ -1,0 +1,81 @@
+/*
+ * VisitNode 业务样式：只消费 dsw token。
+ * 命名规范：._ 根元素；内部元素 .VisitNode-part。
+ */
+
+._ {
+  width: 360px;
+  background: var(--dsw-alias-bg-layer-1);
+  /* dsh hairline 规范：0.5px；l2 档保证贴签在画布上清晰可读 */
+  border: 0.5px solid;
+  border-radius: var(--dsw-radius-md);
+  box-shadow: var(--dsw-elevation-soft);
+  color: var(--dsw-alias-label-primary);
+}
+
+._,
+._ .VisitNode-header::after {
+  border-color: var(--dsw-alias-border-l2);
+}
+
+._:hover,
+._:hover .VisitNode-header::after {
+  border-color: var(--dsw-alias-border-l3);
+}
+
+/* 选中态（NodeProps.selected 驱动） */
+._.selected,
+._.selected .VisitNode-header::after {
+  border-color: var(--dsw-alias-brand-primary);
+}
+
+.VisitNode-tag {
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-secondary);
+  border-radius: var(--dsw-radius-sm);
+  padding: 1px 6px;
+  font-size: var(--dsw-font-xxs-12-font-size);
+  line-height: var(--dsw-font-xxs-12-line-height);
+  white-space: nowrap;
+}
+
+._ .VisitNode-handle {
+  /* 保留连接点尺寸供 ReactFlow 测量，仅隐藏外观。 */
+  visibility: hidden;
+}
+
+/* 幻灯片式短分隔线：与标题左对齐，固定长度约为内容区的三分之二。
+ * 标题下留 12px，线后 4px 加卡片 gap 8px，正文前同样留 12px。 */
+.VisitNode-header::after {
+  content: '';
+  display: block;
+  width: 224px;
+  max-width: 100%;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  border-bottom: 0.5px solid;
+}
+
+.VisitNode-title {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--dsw-font-base-16-font-size);
+  line-height: var(--dsw-font-base-16-line-height);
+  font-weight: var(--dsw-font-base-16-font-weight);
+}
+
+.VisitNode-body {
+  list-style-type: disc;
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsw-font-s-14-font-size);
+  line-height: var(--dsw-font-s-14-line-height);
+  overflow-wrap: anywhere;
+}
+
+.VisitNode-footer {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-xxs-12-font-size);
+  line-height: var(--dsw-font-xxs-12-line-height);
+  border-top: 0.5px solid var(--dsw-alias-border-l1);
+  padding-top: 6px;
+}

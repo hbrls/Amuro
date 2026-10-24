@@ -15,7 +15,7 @@
 }
 
 .card {
-  background: var(--dsw-alias-bg-l1);
+  background: var(--dsw-alias-bg-layer-1);
   /* dsh hairline 规范：中性边框 0.5px，见 docs/web-styling.md */
   border: 0.5px solid var(--dsw-alias-border-l2);
   border-radius: var(--dsw-radius-md);

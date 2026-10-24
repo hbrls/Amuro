@@ -21,7 +21,7 @@ window.__ModuleLoader__.load({
 			return n;
 		}
 		// \0dsh-css:/Users/shuaizhexu/github/Amuro/packages/dsh-plugin-amuro/src/client/Amuro.module.css.mjs
-		const css$1 = ".UtjRDG_page{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}.UtjRDG_title{font-size:var(--dsw-font-l-20-font-size);line-height:var(--dsw-font-l-20-line-height);font-weight:var(--dsw-font-l-20-font-weight)}.UtjRDG_card{background:var(--dsw-alias-bg-l1);border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md)}.UtjRDG_caption{color:var(--dsw-alias-label-tertiary);font-size:var(--dsw-font-base-16-font-size);line-height:var(--dsw-font-base-16-line-height)}";
+		const css$1 = ".UtjRDG_page{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}.UtjRDG_title{font-size:var(--dsw-font-l-20-font-size);line-height:var(--dsw-font-l-20-line-height);font-weight:var(--dsw-font-l-20-font-weight)}.UtjRDG_card{background:var(--dsw-alias-bg-layer-1);border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md)}.UtjRDG_caption{color:var(--dsw-alias-label-tertiary);font-size:var(--dsw-font-base-16-font-size);line-height:var(--dsw-font-base-16-line-height)}";
 		const tagId$1 = "dsh-plugin-amuro/Amuro.module.css";
 		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$1) + "]") === null) {
 			const tag = document.createElement("style");
