@@ -1,0 +1,14 @@
+._ { }
+._:global(.dsh-sessions-delete-dialog) { width: min(720px, 100%); max-height: 100%; overflow: hidden; }
+._ :global(.dsh-sessions-delete-dialog-content) { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+@supports (height: 100dvh) { ._:global(.dsh-sessions-delete-dialog) { max-height: calc(100dvh - 48px); } }
+.DeleteDialog-warning { display: flex; align-items: flex-start; gap: 10px; color: var(--dsw-alias-label-secondary); font-size: 14px; line-height: 22px; }
+.DeleteDialog-warning p { margin: 0; }
+.DeleteDialog-warning-icon { flex: none; margin-top: 2px; color: var(--dsw-alias-state-error-primary); }
+.DeleteDialog-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.DeleteDialog-line { display: flex; align-items: baseline; gap: 10px; }
+.DeleteDialog-num { flex: none; min-width: 22px; text-align: right; color: var(--dsw-alias-label-tertiary); font-size: 13px; line-height: 20px; }
+.DeleteDialog-path { flex: 1; min-width: 0; font-family: var(--ds-font-family-code); font-size: 13px; line-height: 20px; color: var(--dsw-alias-label-primary); overflow-wrap: anywhere; }
+.DeleteDialog-state { flex: none; color: var(--dsw-alias-state-success-primary); font-size: 13px; line-height: 20px; white-space: nowrap; }
+.DeleteDialog-restart { margin-top: 20px; padding-top: 16px; border-top: 0.5px solid var(--dsw-alias-border-l1); color: var(--dsw-alias-state-warn-primary); font-size: 14px; line-height: 22px; font-weight: 500; }
+.DeleteDialog-note { margin-top: 12px; color: var(--dsw-alias-label-tertiary); font-size: 12px; line-height: 18px; }
