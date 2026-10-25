@@ -1,0 +1,75 @@
+/*
+ * 业务视觉只消费 dsw token；通用布局交给 Tailwind。
+ * 类名经 lightningcss 哈希，隔离交给构建产物。
+ * 命名规范：._ 为模块根元素；组件类 PascalCase；组件内部元素用 .Component-part。
+ */
+
+._ {
+  /* ReactFlow 要求容器有确定尺寸 */
+  width: 100%;
+  height: 100%;
+  background: var(--dsw-alias-bg-base);
+  --xy-edge-stroke: var(--dsw-alias-label-tertiary);
+  --xy-edge-stroke-selected: var(--dsw-alias-brand-primary);
+  --xy-edge-stroke-width: 1.5;
+  --xy-background-pattern-dots-color: var(--dsw-alias-border-l3);
+}
+
+/* RF 字面类覆盖（:global 点名），作用域收窄在 ._ 之下 */
+._ :global(.react-flow__background) {
+  background: var(--dsw-alias-bg-base);
+}
+
+/* ZoomIndicator：当前 zoom 百分比，点击恢复默认的 75% */
+.ZoomIndicator,
+._ :global(.react-flow__minimap),
+._ :global(.react-flow__controls) {
+  background: var(--dsw-alias-bg-layer-1);
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-md);
+  box-shadow: var(--dsw-elevation-soft);
+}
+
+.ZoomIndicator {
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsw-font-xxs-12-font-size);
+  line-height: var(--dsw-font-xxs-12-line-height);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.ZoomIndicator:hover {
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-primary);
+}
+
+/* 缩略图使用宿主语义色，随主题切换。 */
+._ :global(.react-flow__minimap) {
+  overflow: hidden;
+  --xy-minimap-node-background-color: var(--dsw-alias-label-tertiary);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--dsw-alias-bg-base) 60%, transparent);
+}
+
+/* Controls（RF 自带 zoom 控件）按钮融入主题 */
+._ :global(.react-flow__controls) {
+  overflow: hidden;
+}
+._ :global(.react-flow__controls-button) {
+  background: var(--dsw-alias-bg-layer-1);
+  border: 0;
+  color: var(--dsw-alias-label-primary);
+}
+._ :global(.react-flow__controls-button:not(:last-child)) {
+  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+}
+._ :global(.react-flow__controls-button:hover) {
+  background: var(--dsw-alias-bg-layer-2);
+}
+._ :global(.react-flow__controls-button) svg {
+  fill: currentColor;
+}
+
+.ZoomIndicator:focus-visible,
+._ :global(.react-flow__controls-button:focus-visible) {
+  outline: 2px solid var(--dsw-alias-brand-primary);
+  outline-offset: -2px;
+}

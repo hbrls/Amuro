@@ -1,0 +1,3 @@
+- insert:
+    - id: plugin-whiteboard
+      name: 'dsh-plugin-whiteboard'
