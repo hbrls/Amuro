@@ -13,9 +13,11 @@
  *   保证 tsx 类名变更能失效 css 虚拟模块（手册 §6.5）
  * - writeBundle 后把 client.js mtime 拨到 max(now, mtime+1)，
  *   保证 Host 的 stat 轮询（mtime/ctime/size 判版本）一定能看到版本前进
+ * - Host 半源码是 src/index.js（纳 git 跟踪），构建时原样拷成 lib/index.js；
+ *   lib/ 目录自此 100% 是构建产物
  */
 import { readFileSync } from 'node:fs'
-import { stat, utimes, readFile } from 'node:fs/promises'
+import { copyFile, stat, utimes, readFile } from 'node:fs/promises'
 import { basename, dirname, isAbsolute, resolve as resolvePath } from 'node:path'
 import { transform } from 'lightningcss'
 import postcss from 'postcss'
@@ -74,7 +76,8 @@ export default defineConfig({
   platform: 'browser',
   target: 'es2024',
   dts: false,
-  // clean 必须关闭：lib/index.js 是手写的 Host 半，不能被清掉。
+  // clean 保持关闭：构建失败时 lib/ 里保留上一份完整产物，
+  // 插件不会因为一次失败构建而整个挂掉。
   clean: false,
   sourcemap: true,
   deps: {
@@ -139,6 +142,13 @@ export default defineConfig({
         if (message.type === 'dependency') this.addWatchFile(message.file)
       }
       return styleInjectionModule(id, fileId, result.css)
+    },
+  }, {
+    // Host 半：src/index.js → lib/index.js。原样拷贝不经 bundler，
+    // Host 半是 Node 侧 ESM，保持手写形态（exports["."] 指向该产物）。
+    name: 'dsh-host-half-copy',
+    async writeBundle() {
+      await copyFile(resolvePath(packageDir, 'src/index.js'), resolvePath(packageDir, 'lib/index.js'))
     },
   }, {
     name: 'dsh-client-revision-stamp',

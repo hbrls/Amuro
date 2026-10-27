@@ -79,3 +79,10 @@
   border-top: 0.5px solid var(--dsw-alias-border-l1);
   padding-top: 6px;
 }
+
+.VisitNode-error {
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsw-font-xxs-12-font-size);
+  line-height: var(--dsw-font-xxs-12-line-height);
+  overflow-wrap: anywhere;
+}

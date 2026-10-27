@@ -47,6 +47,8 @@
   overflow: hidden;
   --xy-minimap-node-background-color: var(--dsw-alias-label-tertiary);
   --xy-minimap-mask-background-color: color-mix(in srgb, var(--dsw-alias-bg-base) 60%, transparent);
+  --xy-minimap-mask-stroke-color: var(--dsw-alias-brand-primary);
+  --xy-minimap-mask-stroke-width: 2;
 }
 
 /* Controls（RF 自带 zoom 控件）按钮融入主题 */

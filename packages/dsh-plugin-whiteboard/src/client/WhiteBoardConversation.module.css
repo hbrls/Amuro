@@ -1,0 +1,38 @@
+._ {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.conversationPane {
+  display: flex;
+  flex: 0 0 min(46%, 720px);
+  flex-direction: column;
+  min-width: 360px;
+  height: 100%;
+  border-left: 0.5px solid var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-bg-base);
+}
+
+.conversationHeader {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 48px;
+  padding: 0 12px 0 16px;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  color: var(--dsw-alias-label-primary);
+}
+
+.conversation {
+  min-height: 0;
+  flex: 1 1 auto;
+  /* 官方 conversation.content 的根高度是 flex:1，只在 flex 父级中生效；
+     官方嵌入先例（ui-subagent）的容器同为全高 flex。块级容器会让对话区
+     塌缩成内容高度，hero 无法垂直居中、active 相 composer 无法吸底。 */
+  display: flex;
+  flex-direction: column;
+}
