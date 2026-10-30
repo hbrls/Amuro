@@ -1,0 +1,3 @@
+- insert:
+    - id: plugin-amuro
+      name: 'dsh-plugin-amuro'
