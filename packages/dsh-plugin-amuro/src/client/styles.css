@@ -1,0 +1,20 @@
+/*
+ * Tailwind 入口（手册 §6.3）：
+ * - 只引入 theme + utilities 两层，preflight 全量禁用（裸元素 reset 会污染共享 shell）
+ * - prefix(tw)：工具类与 --tw-* 变量全部带前缀，不与宿主/兄弟插件撞名
+ * - source(none) + @source 显式收窄扫描范围到 src/client，
+ *   避免自动探测扫到兄弟包与本仓库 markdown 里的 tw: 字样
+ * - @theme 清空视觉命名空间：tw:bg-red-500 / tw:rounded-lg / tw:shadow 等类直接不生成，
+ *   视觉值一律在 *.module.css 里写 var(--dsw-*)
+ */
+@import "tailwindcss/theme" prefix(tw);
+@import "tailwindcss/utilities" prefix(tw) source(none);
+
+@source ".";
+
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --text-*: initial;
+}

@@ -1,0 +1,28 @@
+/*
+ * 业务样式（手册 §6.2）：只消费 dsw token，不写字面颜色/尺度。
+ * 类名经 lightningcss 哈希，隔离交给构建产物。
+ */
+
+.page {
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+}
+
+.title {
+  font-size: var(--dsw-font-l-20-font-size);
+  line-height: var(--dsw-font-l-20-line-height);
+  font-weight: var(--dsw-font-l-20-font-weight);
+}
+
+.card {
+  background: var(--dsw-alias-bg-l1);
+  /* dsh hairline 规范：中性边框 0.5px，见 docs/web-styling.md */
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-md);
+}
+
+.caption {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsw-font-base-16-font-size);
+  line-height: var(--dsw-font-base-16-line-height);
+}
