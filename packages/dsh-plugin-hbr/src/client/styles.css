@@ -1,0 +1,11 @@
+@import "tailwindcss/theme" prefix(tw);
+@import "tailwindcss/utilities" prefix(tw) source(none);
+
+@source ".";
+
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --text-*: initial;
+}

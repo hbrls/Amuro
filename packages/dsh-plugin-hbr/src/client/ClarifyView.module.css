@@ -1,0 +1,39 @@
+._ {
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+}
+
+.ClarifyView-empty {
+  color: var(--dsw-alias-label-tertiary);
+  text-align: center;
+}
+
+.ClarifyCountButton {
+  flex: none;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: var(--dsw-font-xxs-12-font-size);
+}
+
+.ClarifyRecord {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ClarifyRecord-type {
+  min-width: 0;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.ClarifyRecord-payload {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--dsw-font-xxs-12-font-size);
+}
