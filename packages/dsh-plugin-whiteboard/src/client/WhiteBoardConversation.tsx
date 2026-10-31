@@ -4,9 +4,5 @@ export function WhiteBoardConversation({ renderFactorySlot }: any) {
     variant: 'embedded',
     phase: 'hero',
     hero: true,
-  }, { slots: { views: _Official_ConversationSession_OnlyChatView_Adapter } })
-}
-
-const _Official_ConversationSession_OnlyChatView_Adapter = ({ renderSlot }: any) => {
-  return renderSlot('conversation.session', { view: 'chat' })
+  })
 }

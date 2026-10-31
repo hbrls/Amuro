@@ -44,9 +44,10 @@
   visibility: hidden;
 }
 
-/* 幻灯片式短分隔线：与标题左对齐，固定长度约为内容区的三分之二。
+/* 仅 Current 展示标题下的短分隔线；其他节点只保留标题。
+ * 幻灯片式短分隔线：与标题左对齐，固定长度约为内容区的三分之二。
  * 标题下留 12px，线后 4px 加卡片 gap 8px，正文前同样留 12px。 */
-.VisitNode-header::after {
+._.current .VisitNode-header::after {
   content: '';
   display: block;
   width: 224px;
