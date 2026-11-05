@@ -27,6 +27,10 @@
   color: var(--dsw-alias-label-primary);
 }
 
+.officialSessionButton {
+  margin-left: auto;
+}
+
 .conversation {
   min-height: 0;
   flex: 1 1 auto;

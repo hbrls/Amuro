@@ -1,8 +1,9 @@
 import { Background, BackgroundVariant, Controls, MiniMap, Panel, ReactFlow, useReactFlow, useViewport } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import clsx from 'clsx'
-import { nodes, edges } from './database.js'
-import { VisitNode, type VisitNodeType } from './VisitNode'
+import { twigs } from './database.js'
+import { derivePositions } from './whiteboardLayout'
+import { VisitNode, type VisitNodeRenderType } from './VisitNode'
 import styles from './WhiteBoard.module.css'
 import { WhiteBoardConversationContext, WhiteBoardContext, type IWhiteBoardContext } from './WhiteBoardContext'
 import { useEffect, useRef, useState } from 'react'
@@ -13,6 +14,19 @@ import conversationStyles from './WhiteBoardConversation.module.css'
 const DEFAULT_ZOOM = 0.75
 const nodeTypes = { visit: VisitNode }
 
+// 数据库不携带 position：整幅白板一次性推导坐标。
+// 必须全板推导而非逐 Twig 推导——逐 Twig 推导时行号每次都从 0 起算，所有 Twig 会重叠到第一行。
+// 行 = 连通分量（链可跨 Twig / Workspace），列 = 链内 source → target 推进序；同一数据集推导结果完全一致。
+const sourceNodes = twigs.flatMap(twig => twig.nodes)
+const edges = twigs.flatMap(twig => twig.edges)
+const positions = derivePositions(sourceNodes, edges, id =>
+  sourceNodes.find(node => node.id === id)?.data.workspaceId ?? id)
+const nodes: VisitNodeRenderType[] = sourceNodes.map(node => ({
+  id: node.id,
+  type: node.type,
+  position: positions.get(node.id) ?? { x: 0, y: 0 },
+  data: node.data,
+}))
 
 /** 当前 zoom 百分比；点击恢复默认的 75%。 */
 function ZoomIndicator() {
@@ -47,22 +61,29 @@ export function WhiteBoardPage({ ctx, SessionProvider, renderSlot }: { ctx: IWhi
           <div className={styles._}>
             {/* 非受控模式（defaultNodes）：受控 nodes 不配 onNodesChange 时，userNode.measured
                 永远不被回写，MiniMap 缩略图与拖拽都会失效（实测确诊 2026-10-23）。 */}
-            <ReactFlow<VisitNodeType>
+            <ReactFlow<VisitNodeRenderType>
               defaultNodes={nodes}
               defaultEdges={edges}
               nodeTypes={nodeTypes}
+              nodesDraggable={false}
               fitView
               fitViewOptions={{ minZoom: DEFAULT_ZOOM, maxZoom: DEFAULT_ZOOM }}
             >
               <Background variant={BackgroundVariant.Dots} />
               <MiniMap pannable />
-              <Controls />
+              <Controls showInteractive={false} />
               <ZoomIndicator />
             </ReactFlow>
           </div>
           {reference && <aside className={conversationStyles.conversationPane}>
             <div className={conversationStyles.conversationHeader}>
               <Button type="button" variant="ghost" onClick={closeConversation}>关闭</Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className={conversationStyles.officialSessionButton}
+                onClick={() => ctx.uiWorkspace.openSession(reference.sessionId)}
+              >Goto 官方 Session</Button>
             </div>
             <SessionProvider session={reference}>
               <div className={conversationStyles.conversation}>{renderSlot('whiteboard.conversation', {})}</div>
