@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-whiteboard",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,9 @@
     "./client": "./lib/client.js"
   },
   "dependencies": {
-    "@xyflow/react": "12.10.2"
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
+    "@xyflow/react": "12.10.2",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",

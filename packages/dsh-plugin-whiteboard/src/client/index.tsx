@@ -1,13 +1,8 @@
-import { Button, IconPlayOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
-import { WhiteBoardPage } from './WhiteBoardPage'
-import { WhiteBoardConversation } from './WhiteBoardConversation'
+import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
+import { ConversationView } from './ConversationView'
+import { createTurnSource } from '../dsh-client-ui/translateTurns'
 import type { BaseContext, WhiteBoardContextServices } from './types'
 import './styles.css'
-
-/** Sidebar 面板图标，照 sidebar.panellist 契约转发官方图标。 */
-function Icon({ size }: { size?: number }) {
-  return <IconPlayOutlineRegular size={size} />
-}
 
 const END_DISCUSSION_PROMPT = '分析具体的实施方案，并写入 .context/current-task.md，覆盖它。'
 
@@ -31,22 +26,9 @@ function EndDiscussionButton({ services, session }: {
   return <Button type="button" variant="secondary" onClick={handleClick}>结束讨论</Button>
 }
 
-export const inject = ['slots', 'uiWorkspace']
+export const inject = ['slots']
 
 export function apply(ctx: BaseContext) {
-  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-    name: 'sidebar.panellist',
-    id: 'plugin-whiteboard',
-    order: 1,
-    label: 'White Board',
-  }, Icon))
-
-  ctx.slots.inject('whiteboard.conversation', () => ctx.slots.register({
-    name: 'whiteboard.conversation',
-    // 注意：不要在这里的 children 声明 'conversation.content' —— children 是
-    // renderSlot 的声明表，factory 由 renderFactorySlot 按名解析，声明了也只是空 slot。
-  }, WhiteBoardConversation))
-
   // Add a session-scoped action above the official input without replacing the Composer.
   ctx.inject(['sessions', 'conversation', 'slots'], (services: WhiteBoardContextServices) => {
     ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
@@ -58,13 +40,17 @@ export function apply(ctx: BaseContext) {
     }, (props: { session?: { sessionId?: string } }) => <EndDiscussionButton services={services} {...props} />))
   })
 
-  // Register the main panel as soon as the core board services are ready; the
-  // Conversation providers are optional and must not gate panel navigation.
-  ctx.inject(['uiWorkspace', 'sessions', 'conversation', 'workspaces', 'slots'], (services: WhiteBoardContextServices) => {
-    ctx.slots.inject('main', () => ctx.slots.register({
-      name: 'main',
-      key: 'plugin-whiteboard',
-      children: { 'whiteboard.conversation': { kind: 'single', scope: 'session' } },
-    }, (props: any) => <WhiteBoardPage ctx={services} {...props} />))
+  ctx.inject(['sessions', 'uiConversation'], services => {
+    ctx.slots.inject('conversation.view', () => ctx.slots.register({
+      name: 'conversation.view',
+      id: 'whiteboard',
+      order: 90,
+      label: 'Whiteboard',
+      inject: (sessionId: string) => {
+        const binding = services.sessions.binding(sessionId)
+        if (!binding) throw new Error(`Whiteboard: unknown session "${sessionId}"`)
+        return createTurnSource(binding, services.uiConversation.binding(binding))
+      },
+    }, ConversationView))
   })
 }

@@ -1,0 +1,21 @@
+._ {
+  /* Fill the conversation viewArea while allowing its flex item to shrink. */
+  position: relative;
+  container-type: size;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.turnList {
+  position: absolute;
+  z-index: 10;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - var(--dsh-composer-side-clearance, 16px) - var(--dsh-composer-side-clearance, 16px));
+  max-width: var(--dsh-composer-card-max-width, 952px);
+  height: 25cqh;
+}

@@ -1,0 +1,50 @@
+.turnList {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 16px;
+  border: 0.5px solid var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-panel);
+  background: var(--dsw-alias-bg-base);
+  color: var(--dsw-alias-label-primary);
+  box-shadow: var(--dsw-elevation-panel);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.turnRow {
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+}
+
+.turnLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.turnRow:nth-last-child(1 of .turnRow) .turnLine {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+.turnLoading {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.turnLoading svg {
+  animation: turnLoadingSpin 1s linear infinite;
+}
+
+@keyframes turnLoadingSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turnLoading svg { animation: none; }
+}

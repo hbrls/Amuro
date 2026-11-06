@@ -41,8 +41,7 @@ export interface BaseContext {
 }
 
 export interface WhiteBoardContextServices extends BaseContext {
-  uiWorkspace: any
+  uiConversation: any
   sessions: any
   conversation: any
-  workspaces: any
 }
