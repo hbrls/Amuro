@@ -1,0 +1,34 @@
+{
+  "name": "dsh-plugin-hbr",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "clsx": "2.1.1",
+    "lightningcss": "1.33.0",
+    "postcss": "8.5.28",
+    "tailwindcss": "4.3.3",
+    "tsdown": "0.22.14"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.5"
+  }
+}
