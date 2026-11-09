@@ -53,5 +53,4 @@ export interface BaseContext {
 export interface WhiteBoardContextServices extends BaseContext {
   uiConversation: any
   sessions: any
-  conversation: any
 }

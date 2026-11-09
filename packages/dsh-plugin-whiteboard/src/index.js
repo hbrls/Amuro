@@ -160,6 +160,7 @@ export async function apply(ctx) {
     async handler({ agent }) {
       let fiber
       try {
+        const { createUserMessage } = await ctx.loader.import('@deepseek-ai/dsh-llm')
         const mcpClient = await ctx.loader.import('@deepseek-ai/dsh-mcp-client')
         fiber = agent.ctx.plugin(mcpClient, {
           serverName: 'backstage-whiteboard',
@@ -169,10 +170,10 @@ export async function apply(ctx) {
         })
         await fiber.await()
         agent.ctx.tools.register(whiteboardTool)
-        agent.followup({
+        agent.followup(createUserMessage({
           content: [{ type: 'text', text: PROMPT }],
           source: { kind: 'whiteboard-command' },
-        })
+        }))
         return { kind: 'success' }
       } catch (error) {
         if (fiber) await fiber.dispose()
