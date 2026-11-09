@@ -1,13 +1,3 @@
 - insert:
     - id: plugin-whiteboard
       name: 'dsh-plugin-whiteboard'
-    # Server-level MCP registration: the whole backstage-whiteboard MCP server
-    # is bridged by the bundled @deepseek-ai/dsh-mcp-client; its tools appear
-    # as mcp__backstage-whiteboard__<tool>. Requires backstage-hub to be running.
-    - id: mcp-backstage-whiteboard
-      name: '@deepseek-ai/dsh-mcp-client'
-      config:
-        serverName: backstage-whiteboard
-        transport: streamable-http
-        url: http://127.0.0.1:20080/mcp-whiteboard
-        failOnStartupError: false

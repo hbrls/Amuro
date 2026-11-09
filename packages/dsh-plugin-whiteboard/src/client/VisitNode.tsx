@@ -12,8 +12,8 @@ export interface VisitNodeData extends Record<string, unknown> {
   progress: string
 }
 
-/** 全局稳定编号，离线数据使用 VISIT-NNN；编号不代表推进顺序。 */
-export type VisitNodeId = `VISIT-${number}`
+/** Hub 工作区前缀节点 ID；ID 不代表推进顺序。 */
+export type VisitNodeId = string
 
 export type VisitNodeType = Node<VisitNodeData, 'visit'> & { id: VisitNodeId }
 

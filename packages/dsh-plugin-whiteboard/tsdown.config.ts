@@ -13,11 +13,10 @@
  *   保证 tsx 类名变更能失效 css 虚拟模块（手册 §6.5）
  * - writeBundle 后把 client.js mtime 拨到 max(now, mtime+1)，
  *   保证 Host 的 stat 轮询（mtime/ctime/size 判版本）一定能看到版本前进
- * - Host 半源码是 src/index.js（纳 git 跟踪），构建时原样拷成 lib/index.js；
- *   lib/ 目录自此 100% 是构建产物
+ * - Host 半构建为 ESM，内联本地 TypeScript 提示词，宿主依赖保持 external
  */
 import { readFileSync } from 'node:fs'
-import { copyFile, stat, utimes, readFile } from 'node:fs/promises'
+import { stat, utimes, readFile } from 'node:fs/promises'
 import { basename, dirname, isAbsolute, resolve as resolvePath } from 'node:path'
 import { transform } from 'lightningcss'
 import postcss from 'postcss'
@@ -68,7 +67,7 @@ function styleInjectionModule(id, fileId, css, classMap) {
 /** Tailwind v4（@tailwindcss/postcss）。所有全局 .css 统一过这一道编译。 */
 const tailwindProcessor = postcss([tailwindcss()])
 
-export default defineConfig({
+export default defineConfig([{
   name: `${id}/client`,
   entry: { client: 'src/client/index.tsx' },
   outDir: 'lib',
@@ -144,13 +143,6 @@ export default defineConfig({
       return styleInjectionModule(id, fileId, result.css)
     },
   }, {
-    // Host 半：src/index.js → lib/index.js。原样拷贝不经 bundler，
-    // Host 半是 Node 侧 ESM，保持手写形态（exports["."] 指向该产物）。
-    name: 'dsh-host-half-copy',
-    async writeBundle() {
-      await copyFile(resolvePath(packageDir, 'src/index.js'), resolvePath(packageDir, 'lib/index.js'))
-    },
-  }, {
     name: 'dsh-client-revision-stamp',
     async writeBundle(outputOptions, bundle) {
       const entry = Object.values(bundle).find((output) => output.type === 'chunk' && output.isEntry)
@@ -169,4 +161,16 @@ export default defineConfig({
     intro: 'var module = { exports: {} }; var exports = module.exports;',
     footer: 'return module.exports; } });',
   },
-})
+}, {
+  name: `${id}/host`,
+  entry: { index: 'src/index.js' },
+  outDir: 'lib',
+  format: 'esm',
+  platform: 'node',
+  target: 'es2024',
+  dts: false,
+  clean: false,
+  sourcemap: true,
+  deps: { neverBundle: ['@deepseek-ai/dsh-tools', 'zod'] },
+  outputOptions: { entryFileNames: 'index.js' },
+}])
