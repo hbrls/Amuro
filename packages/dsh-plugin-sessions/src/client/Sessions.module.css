@@ -1,0 +1,50 @@
+._ {
+  height: 100%;
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.th {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
+  color: var(--dsw-alias-label-secondary, #8a8a8e);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.18));
+  color: var(--dsw-alias-label-primary, inherit);
+  vertical-align: middle;
+}
+
+.sessionId {
+  color: var(--dsw-alias-label-secondary);
+  font-family: var(--ds-font-family-code);
+  font-size: 12px;
+}
+
+/*
+ * Seed-row marker: the outline Delete button turns to the official danger
+ * palette (border + label + icon via currentColor, hover wash). Both tokens
+ * are light/dark aware aliases from dsh-client-ui-theme. !important beats
+ * the Button primitive's own outline colors regardless of stylesheet order.
+ */
+.deleteSeed {
+  border-color: var(--dsw-alias-state-error-primary) !important;
+  color: var(--dsw-alias-state-error-primary) !important;
+}
+
+.deleteSeed:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover-danger) !important;
+}
