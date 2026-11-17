@@ -10,7 +10,6 @@ export type VisitEdge = Omit<Edge, 'id' | 'source' | 'target'> & {
   target: VisitNodeId
 }
 
-/** Source-provided node ID. Offline and Hub sources retain their own ID formats. */
 export type VisitNodeSourceId = VisitNodeId
 
 /**
@@ -31,6 +30,8 @@ export interface Twig {
 
 /** Complete source graph submitted by the whiteboard tool; layout is computed by the client. */
 export interface WhiteboardPayload {
+  /** 当前 Session 所在 Workspace 的名称，与节点 data.workspace 同一域。 */
+  workspaceName: string
   nodes: VisitNodeSource[]
   edges: VisitEdge[]
 }
@@ -53,5 +54,4 @@ export interface BaseContext {
 export interface WhiteBoardContextServices extends BaseContext {
   uiConversation: any
   sessions: any
-  conversation: any
 }

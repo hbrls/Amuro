@@ -23,13 +23,19 @@
   border-color: var(--dsw-alias-border-l3);
 }
 
-/* 选中态（NodeProps.selected 驱动） */
+/* 选中态（NodeProps.selected）与高亮态（data.highlight）共用同一条声明。 */
 ._.selected,
-._.selected .VisitNode-header::after {
+._.highlight,
+._.selected .VisitNode-header::after,
+._.highlight .VisitNode-header::after {
   border-color: var(--dsw-alias-brand-primary);
 }
 
 .VisitNode-tag {
+  /* 该 tag 是 <button>：点击把卡片描述填入对话框，需压掉 UA 的边框与字体。 */
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-secondary);
   border-radius: var(--dsw-radius-sm);
@@ -37,6 +43,15 @@
   font-size: var(--dsw-font-xxs-12-font-size);
   line-height: var(--dsw-font-xxs-12-line-height);
   white-space: nowrap;
+}
+
+._ .VisitNode-tag:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary);
+}
+
+._ .VisitNode-tag:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 ._ .VisitNode-handle {

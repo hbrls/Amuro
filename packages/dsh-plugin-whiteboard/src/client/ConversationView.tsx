@@ -1,11 +1,12 @@
 import { Background, BackgroundVariant, Controls, MiniMap, Panel, ReactFlow, useReactFlow, useViewport } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import clsx from 'clsx'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Turns } from '../dsh-client-ui/Turns.jsx'
 import type { TurnBoundary, TurnListSnapshot, TurnSummary } from '../dsh-client-ui/translateTurns'
 import { mockCompute } from './database.js'
 import { derivePositions, deriveTwigs } from './whiteboardLayout'
+import { FillDraftContext, type InputActionsLike, type UseInputLike } from './fillDraft'
 import { VisitNode, type VisitNodeRenderType } from './VisitNode'
 import type { VisitEdge, WhiteboardEvent, WhiteboardPayload } from './types'
 import styles from './WhiteBoard.module.css'
@@ -21,15 +22,15 @@ interface BoardData {
   revision: number
 }
 
-function deriveBoard({ nodes: sourceNodes, edges }: WhiteboardPayload) {
+function deriveBoard({ workspaceName, nodes: sourceNodes, edges }: WhiteboardPayload) {
   const nodeById = new Map(sourceNodes.map(node => [node.id, node]))
-  const twigs = deriveTwigs(sourceNodes, edges, id => nodeById.get(id)?.data.workspaceId ?? id)
+  const twigs = deriveTwigs(sourceNodes, edges, id => nodeById.get(id)?.data.workspace ?? id)
   const positions = derivePositions(twigs)
   const nodes: VisitNodeRenderType[] = sourceNodes.map(node => ({
     id: node.id,
     type: node.type,
     position: positions.get(node.id) ?? { x: 0, y: 0 },
-    data: node.data,
+    data: { ...node.data, highlight: node.data.workspace === workspaceName },
   }))
   return { nodes, edges }
 }
@@ -39,6 +40,23 @@ interface ConversationViewProps {
   useProjection?: (key: string) => WhiteboardEvent | null | undefined
   getTurns?: () => Promise<TurnListSnapshot>
   subscribeTurnEvents?: (listener: (boundary: TurnBoundary) => void) => () => void
+  // 宿主经 uiSession.provide 注入的 session 标准 props（hooks:['conversation','input']、props:['inputActions']）。
+  useInput?: UseInputLike
+  inputActions?: InputActionsLike
+}
+
+/**
+ * 读取当前草稿并向下提供 fillDraft：已有草稿时追加（保留原文），空草稿时直接填入。
+ * 只写草稿、不调用 submit，发送与否由用户决定。
+ */
+function FillDraftProvider({ useInput, inputActions, children }: Required<Pick<ConversationViewProps, 'useInput' | 'inputActions'>> & {
+  children: ReactNode
+}) {
+  const draft = useInput(input => input.draft)
+  const fillDraft = useCallback((text: string) => {
+    inputActions.setDraft(draft.trim() === '' ? text : `${draft}\n\n${text}`)
+  }, [inputActions, draft])
+  return <FillDraftContext.Provider value={fillDraft}>{children}</FillDraftContext.Provider>
 }
 
 function SessionBoardUpdates({ useProjection, onReload }: Required<Pick<ConversationViewProps, 'useProjection'>> & {
@@ -114,7 +132,7 @@ function ZoomIndicator() {
 }
 
 /** The host mounts only the active conversation view; each mount resets the viewport. */
-export function ConversationView({ useProjection, getTurns, subscribeTurnEvents }: ConversationViewProps) {
+export function ConversationView({ useProjection, getTurns, subscribeTurnEvents, useInput, inputActions }: ConversationViewProps) {
   const [board, setBoard] = useState<BoardData | null>(null)
   const [loadError, setLoadError] = useState(false)
   const reloadRevision = useRef(0)
@@ -132,6 +150,7 @@ export function ConversationView({ useProjection, getTurns, subscribeTurnEvents 
         if (revision !== reloadRevision.current) return
 
         const next = deriveBoard({
+          workspaceName: payload.workspaceName,
           nodes: [...source.nodes, ...payload.nodes],
           edges: [...source.edges, ...payload.edges],
         })
@@ -143,29 +162,8 @@ export function ConversationView({ useProjection, getTurns, subscribeTurnEvents 
     })()
   }, [])
 
-  useEffect(() => {
-    let disposed = false
-    const revisionAtStart = reloadRevision.current
-
-    async function initialize() {
-      try {
-        const source = await mockCompute()
-        if (disposed) return
-
-        const initial = deriveBoard(source)
-        // A tool reload received while mockCompute was pending owns the canvas.
-        setBoard(current => current ?? { ...initial, revision: 0 })
-      } catch {
-        if (!disposed && revisionAtStart === reloadRevision.current) setLoadError(true)
-      }
-    }
-
-    void initialize()
-    return () => { disposed = true }
-  }, [])
-
-  return (
-    <div className={clsx(styles._, viewStyles._)}>
+  const boardArea = (
+    <>
       {useProjection && <SessionBoardUpdates useProjection={useProjection} onReload={reloadBoard} />}
       {getTurns && subscribeTurnEvents && <SessionTurnList getTurns={getTurns} subscribeTurnEvents={subscribeTurnEvents} />}
       {/* Each reload remounts RF and fits the top-left node after measurement. */}
@@ -188,11 +186,23 @@ export function ConversationView({ useProjection, getTurns, subscribeTurnEvents 
           }}
         >
           <Background variant={BackgroundVariant.Dots} />
-          <MiniMap pannable />
+          {/* MiniMap 画 SVG rect 而非节点组件；highlight 经 nodeColor 注入品牌色，非高亮回落到主题变量。 */}
+          <MiniMap<VisitNodeRenderType>
+            pannable
+            nodeColor={node => node.data.highlight ? 'var(--dsw-alias-brand-primary)' : ''}
+          />
           <Controls showInteractive={false} />
           <ZoomIndicator />
         </ReactFlow>
       )}
+    </>
+  )
+
+  return (
+    <div className={clsx(styles._, viewStyles._)}>
+      {useInput && inputActions
+        ? <FillDraftProvider useInput={useInput} inputActions={inputActions}>{boardArea}</FillDraftProvider>
+        : boardArea}
     </div>
   )
 }

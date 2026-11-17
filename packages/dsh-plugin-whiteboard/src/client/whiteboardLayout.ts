@@ -5,7 +5,7 @@ import type { VisitNodeSourceId, VisitEdge, VisitNodeSource, Twig } from './type
  * Whiteboard Twig 分组与布局推导；源数据只包含 nodes 和 edges。
  *
  * 每个连通分量计算为一个临时 Twig。每条链从唯一链头沿 source → target 遍历；
- * 孤立节点各自成 Twig。Twig 按链头的 (workspaceId, id) 排序后放置为画布行。
+ * 孤立节点各自成 Twig。Twig 按链头的 (workspace, id) 排序后放置为画布行。
  * 单线无环是图结构约束；本模块负责校验，不依赖数据源预先分组。
  */
 

@@ -1,23 +1,23 @@
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import { z } from 'zod'
-import PROMPT from './prompts/use.ts'
+import { buildPrompt } from './prompts/use.ts'
 
 /** Cordis plugin name. Must match the id in cordis.patch.yml. */
 export const name = 'plugin-whiteboard';
 
-export const inject = ['tools', 'sessionProjections', 'commands', 'loader'];
+export const inject = ['tools', 'sessionProjections', 'commands', 'loader', 'workspaceRegistry'];
 
 const PROJECTION_KEY = 'com.lisitede.backstage/dsh-plugin-whiteboard'
 const nodeIdSchema = z.string().min(1)
 const eventSchema = z.object({
   type: z.literal('reload'),
   payload: z.object({
+    workspaceName: z.string().min(1),
     nodes: z.array(z.object({
       id: nodeIdSchema,
       type: z.literal('visit'),
       data: z.object({
         workspace: z.string(),
-        workspaceId: z.string().optional(),
         header: z.object({ title: z.string() }),
         body: z.array(z.string()),
         progress: z.string(),
@@ -62,6 +62,7 @@ const stateSchema = eventSchema.nullable()
 const payloadParameter = {
   type: 'object', required: true, additionalProperties: false,
   properties: {
+    workspaceName: { type: 'string', required: true, description: '当前 Session 所在 Workspace 的名称；由启用命令在 prompt 中提供，原样透传，不要猜测或改写。' },
     nodes: {
       type: 'array', required: true,
       items: {
@@ -72,8 +73,7 @@ const payloadParameter = {
           data: {
             type: 'object', required: true, additionalProperties: false,
             properties: {
-              workspace: { type: 'string', required: true },
-              workspaceId: { type: 'string' },
+              workspace: { type: 'string', required: true, description: '节点所属 Workspace 的名称（ backstage VisitNode.Workspace 原值）。' },
               header: {
                 type: 'object', required: true, additionalProperties: false,
                 properties: { title: { type: 'string', required: true } },
@@ -106,7 +106,7 @@ const payloadParameter = {
 export async function apply(ctx) {
   await ctx.sessionProjections.register({
     key: PROJECTION_KEY,
-    stateVersion: 3,
+    stateVersion: 5,
     stateSchema,
     init: () => null,
     apply: (state, event) => {
@@ -131,7 +131,7 @@ export async function apply(ctx) {
 
   const whiteboardTool = defineTool({
     name: 'whiteboard',
-    description: '重绘当前 Session 的 Whiteboard。type 为 reload，payload 为完整的 nodes 和 edges；替换整幅画布，不追加、不合并。节点和边构成单线无环链，前端自动计算分组与位置，无需传入 Twig 或坐标。空数组可清空画布。',
+    description: '重绘当前 Session 的 Whiteboard。type 为 reload，payload 为当前 Session 的 workspaceName 与完整的 nodes、edges；替换整幅画布，不追加、不合并。节点和边构成单线无环链，前端自动计算分组与位置，无需传入 Twig 或坐标。空数组可清空画布。',
     parameters: {
       type: { type: 'string', enum: ['reload'], required: true },
       payload: payloadParameter,
@@ -160,6 +160,9 @@ export async function apply(ctx) {
     async handler({ agent }) {
       let fiber
       try {
+        const workspace = ctx.workspaceRegistry.list().find(item => item.sessionIds.includes(agent.id))
+        if (!workspace) return { kind: 'error', text: '当前 Session 不属于任何 Workspace，无法启用 Whiteboard。' }
+        const { createUserMessage } = await ctx.loader.import('@deepseek-ai/dsh-llm')
         const mcpClient = await ctx.loader.import('@deepseek-ai/dsh-mcp-client')
         fiber = agent.ctx.plugin(mcpClient, {
           serverName: 'backstage-whiteboard',
@@ -169,10 +172,12 @@ export async function apply(ctx) {
         })
         await fiber.await()
         agent.ctx.tools.register(whiteboardTool)
-        agent.followup({
-          content: [{ type: 'text', text: PROMPT }],
-          source: { kind: 'whiteboard-command' },
-        })
+        agent.followup(createUserMessage({
+          content: [{ type: 'text', text: buildPrompt(workspace.title) }],
+          // The command merely types a canned phrase on the user's behalf;
+          // declare 'user' so human-input consumers (session title, etc.) apply.
+          source: { kind: 'user' },
+        }))
         return { kind: 'success' }
       } catch (error) {
         if (fiber) await fiber.dispose()
