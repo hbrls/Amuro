@@ -23,7 +23,7 @@ export type VisitNodeRenderType = Node<VisitNodeRenderData, 'visit'> & { id: Vis
 
 /**
  * 卡片带入对话框的文本。卡片没有 Description 字段：backstage 的 Description
- * 各节在 reload 时已展开为 body 条目，这里按标题行 + 列表项还原为可读文本。
+ * 各节在 deriveBoard 时已展开为 body 条目，这里按标题行 + 列表项还原为可读文本。
  */
 function describeCard(id: string, data: VisitNodeData) {
   return [`${id} · ${data.header.title}`, ...data.body.map(sentence => `- ${sentence}`)].join('\n')

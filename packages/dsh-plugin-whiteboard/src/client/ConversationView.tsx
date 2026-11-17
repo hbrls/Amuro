@@ -1,14 +1,13 @@
 import { Background, BackgroundVariant, Controls, MiniMap, Panel, ReactFlow, useReactFlow, useViewport } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import clsx from 'clsx'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { Turns } from '../dsh-client-ui/Turns.jsx'
 import type { TurnBoundary, TurnListSnapshot, TurnSummary } from '../dsh-client-ui/translateTurns'
-import { mockCompute } from './database.js'
 import { derivePositions, deriveTwigs } from './whiteboardLayout'
 import { FillDraftContext, type InputActionsLike, type UseInputLike } from './fillDraft'
 import { VisitNode, type VisitNodeRenderType } from './VisitNode'
-import type { VisitEdge, WhiteboardEvent, WhiteboardPayload } from './types'
+import type { RawVisitNode, VisitEdge, VisitNodeSource, WhiteboardEvent, WhiteboardPayload } from './types'
 import styles from './WhiteBoard.module.css'
 import viewStyles from './ConversationView.module.css'
 
@@ -22,7 +21,34 @@ interface BoardData {
   revision: number
 }
 
-function deriveBoard({ workspaceName, nodes: sourceNodes, edges }: WhiteboardPayload) {
+/**
+ * backstage 原始节点 → 渲染源节点。Description 各节展平为 body 行：
+ * 单节直接取条目；多节时每节先插入一行节标题。
+ */
+function toSourceNode(raw: RawVisitNode): VisitNodeSource {
+  const sections = Object.entries(raw.Description)
+  const body = sections.length <= 1
+    ? (sections[0]?.[1] ?? [])
+    : sections.flatMap(([section, items]) => [`【${section}】`, ...items])
+  return {
+    id: raw.Id,
+    type: 'visit',
+    data: {
+      workspace: raw.Workspace,
+      header: { title: raw.Title },
+      body,
+      progress: raw.Progress,
+    },
+  }
+}
+
+function deriveBoard({ highlight, nodes: rawNodes, edges: rawEdges }: WhiteboardPayload) {
+  const sourceNodes = rawNodes.map(toSourceNode)
+  const edges: VisitEdge[] = rawEdges.map(edge => ({
+    id: `${edge.Source}->${edge.Target}` as VisitEdge['id'],
+    source: edge.Source,
+    target: edge.Target,
+  }))
   const nodeById = new Map(sourceNodes.map(node => [node.id, node]))
   const twigs = deriveTwigs(sourceNodes, edges, id => nodeById.get(id)?.data.workspace ?? id)
   const positions = derivePositions(twigs)
@@ -30,7 +56,7 @@ function deriveBoard({ workspaceName, nodes: sourceNodes, edges }: WhiteboardPay
     id: node.id,
     type: node.type,
     position: positions.get(node.id) ?? { x: 0, y: 0 },
-    data: { ...node.data, highlight: node.data.workspace === workspaceName },
+    data: { ...node.data, highlight: node.data.workspace === highlight },
   }))
   return { nodes, edges }
 }
@@ -104,8 +130,11 @@ function SessionTurnList({ getTurns, subscribeTurnEvents }: Required<Pick<Conver
       pending={running && !turns?.some(turn => !turn.completed)}
       turns={(turns ?? []).map(({ turn, completed, user, lastStep, blockKinds, text }) => ({
         id: turn,
-        userText: `Turn ${turn} | User | ${user?.data.content.filter(block => block.type === 'text').map(block => block.text).join('\n') || '（无用户文本）'}`,
-        assistantText: `Turn ${turn} | Step ${lastStep ?? '—'} | Assistant | ${text ?? '（末块不是 Text）'}`,
+        turnTag: `T${turn}`,
+        stepTag: `S${lastStep ?? '—'}`,
+        stepLabel: `Step ${lastStep ?? '—'}`,
+        userText: user?.data.content.filter(block => block.type === 'text').map(block => block.text).join('\n') || '（无用户文本）',
+        assistantText: text ?? '（末块不是 Text）',
         assistantTitle: `Blocks: ${blockKinds.join(', ')}`,
         loading: !completed,
       }))}
@@ -134,32 +163,16 @@ function ZoomIndicator() {
 /** The host mounts only the active conversation view; each mount resets the viewport. */
 export function ConversationView({ useProjection, getTurns, subscribeTurnEvents, useInput, inputActions }: ConversationViewProps) {
   const [board, setBoard] = useState<BoardData | null>(null)
-  const [loadError, setLoadError] = useState(false)
-  const reloadRevision = useRef(0)
   const firstNode = board?.nodes.reduce<VisitNodeRenderType | undefined>((first, node) => {
     if (!first || node.position.y < first.position.y
       || (node.position.y === first.position.y && node.position.x < first.position.x)) return node
     return first
   }, undefined)
 
+  // reload 携带完整画布数据，直接替换，不再合并本地 fixture。
   const reloadBoard = useCallback((payload: WhiteboardPayload) => {
-    const revision = ++reloadRevision.current
-    void (async () => {
-      try {
-        const source = await mockCompute()
-        if (revision !== reloadRevision.current) return
-
-        const next = deriveBoard({
-          workspaceName: payload.workspaceName,
-          nodes: [...source.nodes, ...payload.nodes],
-          edges: [...source.edges, ...payload.edges],
-        })
-        setBoard(current => ({ ...next, revision: (current?.revision ?? 0) + 1 }))
-        setLoadError(false)
-      } catch {
-        if (revision === reloadRevision.current) setLoadError(true)
-      }
-    })()
+    const next = deriveBoard(payload)
+    setBoard(current => ({ ...next, revision: (current?.revision ?? 0) + 1 }))
   }, [])
 
   const boardArea = (
@@ -167,7 +180,7 @@ export function ConversationView({ useProjection, getTurns, subscribeTurnEvents,
       {useProjection && <SessionBoardUpdates useProjection={useProjection} onReload={reloadBoard} />}
       {getTurns && subscribeTurnEvents && <SessionTurnList getTurns={getTurns} subscribeTurnEvents={subscribeTurnEvents} />}
       {/* Each reload remounts RF and fits the top-left node after measurement. */}
-      {loadError ? <div role="alert">白板加载失败，请切换视图后重试。</div> : board === null ? <div role="status">正在加载白板…</div> : (
+      {board === null ? <div role="status">正在加载白板…</div> : (
         <ReactFlow<VisitNodeRenderType>
           key={board.revision}
           defaultNodes={board.nodes}

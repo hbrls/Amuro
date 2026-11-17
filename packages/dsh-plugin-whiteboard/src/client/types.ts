@@ -28,12 +28,32 @@ export interface Twig {
   edges: VisitEdge[]
 }
 
-/** Complete source graph submitted by the whiteboard tool; layout is computed by the client. */
+/** backstage MCP 返回的原始节点形状；Host 原样透传，渲染映射由 client 完成。 */
+export interface RawVisitNode {
+  Id: string
+  Workspace: string
+  Session: string
+  Title: string
+  /** 节标题 → 条目列表。 */
+  Description: Record<string, string[]>
+  Progress: string
+}
+
+/** backstage MCP 返回的原始边形状；id 由 client 派生为 `Source->Target`。 */
+export interface RawVisitEdge {
+  Source: string
+  Target: string
+}
+
+/**
+ * whiteboard 工具 reload 解析后的画布数据（原始 Visit 形状）；
+ * Twig 分组、渲染节点与坐标均由 client 推导。
+ */
 export interface WhiteboardPayload {
-  /** 当前 Session 所在 Workspace 的名称，与节点 data.workspace 同一域。 */
-  workspaceName: string
-  nodes: VisitNodeSource[]
-  edges: VisitEdge[]
+  /** 高亮 Workspace 字段等于该值的节点。 */
+  highlight: string
+  nodes: RawVisitNode[]
+  edges: RawVisitEdge[]
 }
 
 export interface WhiteboardEvent {
