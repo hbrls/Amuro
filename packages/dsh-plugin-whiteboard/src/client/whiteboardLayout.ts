@@ -14,6 +14,8 @@ const COLUMN_SPACING = 480
 /** Minimum Twig row pitch and the breathing room after the tallest node above it. */
 const MIN_ROW_SPACING = 300
 const ROW_GAP = 32
+/** 与 VisitNode.module.css 的正文上限一致：8 行 × 22px。 */
+const BODY_MAX_HEIGHT = 176
 
 /** 布局输出：节点 id → 画布坐标。 */
 export type VisitNodePositions = ReadonlyMap<VisitNodeSourceId, XYPosition>
@@ -45,7 +47,8 @@ function wrappedLines(text: string, width: number, fontSize: number) {
 function estimatedNodeHeight(node: VisitNodeSource) {
   const titleLines = wrappedLines(node.data.header.title, 324, 16)
   const bodyLines = node.data.body.reduce((sum, line) => sum + wrappedLines(line, 312, 14), 0)
-  return 112 + titleLines * 20 + bodyLines * 20 + Math.max(0, node.data.body.length - 1) * 8
+  const bodyHeight = Math.min(BODY_MAX_HEIGHT, bodyLines * 22 + Math.max(0, node.data.body.length - 1) * 8)
+  return 112 + titleLines * 20 + bodyHeight
 }
 
 /** 从原始节点与边计算 Twig 连通分量；Twig ID 只在本次结果中有效。 */

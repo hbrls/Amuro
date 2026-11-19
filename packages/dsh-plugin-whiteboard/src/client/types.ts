@@ -37,6 +37,8 @@ export interface RawVisitNode {
   /** 节标题 → 条目列表。 */
   Description: Record<string, string[]>
   Progress: string
+  /** 节点分类；后端保证必有值，不做空态兜底。 */
+  Type: 'Task' | 'Vision'
 }
 
 /** backstage MCP 返回的原始边形状；id 由 client 派生为 `Source->Target`。 */

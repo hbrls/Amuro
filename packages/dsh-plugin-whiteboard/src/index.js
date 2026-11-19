@@ -42,6 +42,7 @@ const visitNodeSchema = z.object({
   Title: z.string(),
   Description: z.record(z.string(), z.array(z.string())),
   Progress: z.string(),
+  Type: z.enum(['Task', 'Vision']),
 })
 const visitEdgeSchema = z.object({
   Source: z.string().min(1),

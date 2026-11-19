@@ -35,6 +35,7 @@ function toSourceNode(raw: RawVisitNode): VisitNodeSource {
     type: 'visit',
     data: {
       workspace: raw.Workspace,
+      kind: raw.Type,
       header: { title: raw.Title },
       body,
       progress: raw.Progress,
@@ -199,10 +200,10 @@ export function ConversationView({ useProjection, getTurns, subscribeTurnEvents,
           }}
         >
           <Background variant={BackgroundVariant.Dots} />
-          {/* MiniMap 画 SVG rect 而非节点组件；highlight 经 nodeColor 注入品牌色，非高亮回落到主题变量。 */}
+          {/* MiniMap 画 SVG rect 而非节点组件；节点底色经 nodeColor 注入：highlight 品牌色、Vision 浅黄，其余回落到主题变量。 */}
           <MiniMap<VisitNodeRenderType>
             pannable
-            nodeColor={node => node.data.highlight ? 'var(--dsw-alias-brand-primary)' : ''}
+            nodeColor={node => node.data.highlight ? 'var(--dsw-alias-brand-primary)' : node.data.kind === 'Vision' ? '#FFFCC8' : ''}
           />
           <Controls showInteractive={false} />
           <ZoomIndicator />

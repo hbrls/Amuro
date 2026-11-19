@@ -23,6 +23,11 @@
   border-color: var(--dsw-alias-border-l3);
 }
 
+/* Vision 节点底色：Task 保持默认 token，Vision 固定为浅黄。 */
+._.vision {
+  background: #FFFCC8;
+}
+
 /* 选中态（NodeProps.selected）与高亮态（data.highlight）共用同一条声明。 */
 ._.selected,
 ._.highlight,
@@ -80,6 +85,11 @@
 }
 
 .VisitNode-body {
+  /* 22px 行高下最多约 8 行；与 whiteboardLayout 的正文高度上限保持一致。 */
+  max-height: 176px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   list-style-type: disc;
   color: var(--dsw-alias-label-secondary);
   font-size: var(--dsw-font-s-14-font-size);
